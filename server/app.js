@@ -1,6 +1,7 @@
-const http = require('http');
-const fs = require('fs');
-const index = fs.readFileSync(__dirname + '/index.html');
+const http = require('http')
+const fs = require('fs')
+const path = require('path')
+const index = fs.readFileSync(path.resolve('public/index.html'));
 const Tail = require('tail').Tail;
 const HOMEDIR = require('os').homedir()
 
