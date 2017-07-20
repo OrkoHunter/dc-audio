@@ -18,6 +18,7 @@ io.on('connection', function(socket) {
 
 tail.on('line', function(log) {
   let parsed = _parseData(log);
+  console.log(parsed)
   if (parsed.success)
     io.emit('log', { log: parsed.data });
 })
@@ -37,11 +38,15 @@ function _parseData(log) {
 
   // We don't need to process logs with these keywords
   let noisy = false
-  let noise = ['#[VIPChat]', '#[ModzChat]', 'TTH:']
+  let noise = ['#[VIPChat]', '#[ModzChat]', 'TTH:', '*message*']
   noise.forEach((item) => {
     if (log.indexOf(item) > -1)
       noisy = true
   })
+
+  // Only *debug* messages are for activities
+  if (log.indexOf('*debug*') < 0)
+    noisy = true
 
   if (noisy)
     return {success: false}
@@ -52,20 +57,21 @@ function _parseData(log) {
   if (log.indexOf('$MyINFO') > -1) {
     let user = logArray[lenLog - 2]
     let returnData = {success: true, data: {type: 'JOIN', user, time}}
-    console.log(returnData)
     return returnData
   } else if (log.indexOf('$Quit') > -1) {
     let user = logArray[lenLog - 1].slice(0, -1)
     let returnData = {success: true, data: {type: 'QUIT', user, time}}
-    console.log(returnData)
     return returnData
   } else if (log.indexOf('$Search') > -1) {
     let queryArray = logArray[lenLog - 1].split('?')
     let query = queryArray[queryArray.length - 1]
-    query = query.replace('$', ' ')
+    query = query.split('$').join(' ')
     query = query.slice(0, -1)
     let returnData = {success: true, data: {type: 'SEARCH', query, time}}
-    console.log(returnData)
+    return returnData
+  } else if (log.indexOf('$SR') > -1) {
+    let user = logArray[6]
+    let returnData = {success: true, data: {type: 'SHARE', user, time}}
     return returnData
   } else {
     return {success: false}
