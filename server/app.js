@@ -1,11 +1,19 @@
-const http = require('http')
+const express = require('express')
+const app = express()
 const fs = require('fs')
 const path = require('path')
 const index = fs.readFileSync(path.resolve('public/index.html'));
 const Tail = require('tail').Tail;
 const HOMEDIR = require('os').homedir()
+const helmet = require('helmet')
 
-const io = require('socket.io').listen(app);
+const server = require('http').Server(app)
+const io = require('socket.io')(server);
+
+const argv = require('minimist')(process.argv.slice(2));
+
+const port = 8000;
+server.listen(port)
 
 tail = new Tail("/home/hunter/.ncdc/stderr.log")
 
@@ -80,9 +88,17 @@ function _parseData(log) {
 
 }
 
-var app = http.createServer(function(req, res) {
-  res.writeHead(200, {'Content-Type': 'text/html'});
-  res.end(index);
+app.use(helmet())
+app.disable('x-powered-by');
+
+app.use('/static', express.static('public'))
+
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
 });
 
-app.listen(3000);
+app.get('/', function(req, res) {
+  res.sendFile(path.resolve('public/index.html'))
+})

@@ -31,8 +31,8 @@ var celesta = [],
 var socket = io();
 
 socket.on('log', function(data) {
-    eventQueue.push(data.log)
-    if (eventQueue.length > 1000) eventQueue = eventQueue.slice(0, 1000);
+  eventQueue.push(data.log)
+  if (eventQueue.length > 1000) eventQueue = eventQueue.slice(0, 1000);
 });
 
 
@@ -40,49 +40,37 @@ socket.on('error', console.error.bind(console));
 
 socket.on('message', console.log.bind(console));
 
-function addMessage(message) {
-    var text = document.createTextNode(message),
-        el = document.createElement('li'),
-        messages = document.getElementById('messages');
-
-    el.appendChild(text);
-    messages.appendChild(el);
-}
-
-socket.on('welcome', function(data) {
-    // Respond with a message including this clients' id sent from the server
-    socket.emit('i am client', {data: 'foo!', id: data.id});
-});
-
 socket.on('connect', function(){
-    if(svg != null){
-      $('svg').css('background-color', svg_background_color_online);
-      $('header').css('background-color', svg_background_color_online);
-      $('.offline-text').css('visibility', 'hidden');
-      $('.events-remaining-text').css('visibility', 'hidden');
-      $('.events-remaining-value').css('visibility', 'hidden');
-    }
+  console.log('socket connected')
+  if(svg != null){
+    $('svg').css('background-color', svg_background_color_online);
+    $('header').css('background-color', svg_background_color_online);
+    $('.offline-text').css('visibility', 'hidden');
+    $('.events-remaining-text').css('visibility', 'hidden');
+    $('.events-remaining-value').css('visibility', 'hidden');
+  }
 });
 
 socket.on('disconnect', function(){
-    if(svg != null){
-      $('svg').css('background-color', svg_background_color_offline);
-      $('header').css('background-color', svg_background_color_offline);
-      $('.offline-text').css('visibility', 'visible');
-      $('.events-remaining-text').css('visibility', 'visible');
-      $('.events-remaining-value').css('visibility', 'visible');
 
-    }
+  if(svg != null){
+    $('svg').css('background-color', svg_background_color_offline);
+    $('header').css('background-color', svg_background_color_offline);
+    $('.offline-text').css('visibility', 'visible');
+    $('.events-remaining-text').css('visibility', 'visible');
+    $('.events-remaining-value').css('visibility', 'visible');
+
+  }
 });
 
 socket.on('error', function(){
-    if(svg != null){
-      $('svg').css('background-color', svg_background_color_offline);
-      $('header').css('background-color', svg_background_color_offline);
-      $('.offline-text').css('visibility', 'visible');
-      $('.events-remaining-text').css('visibility', 'visible');
-      $('.events-remaining-value').css('visibility', 'visible');
-    }
+  if(svg != null){
+    $('svg').css('background-color', svg_background_color_offline);
+    $('header').css('background-color', svg_background_color_offline);
+    $('.offline-text').css('visibility', 'visible');
+    $('.events-remaining-text').css('visibility', 'visible');
+    $('.events-remaining-value').css('visibility', 'visible');
+  }
 });
 
 
@@ -130,7 +118,7 @@ $(function(){
           all_loaded = true;
           setTimeout(playFromQueueExchange1, Math.floor(Math.random() * 1000));
           // Starting the second exchange makes music a bad experience
-          // setTimeout(playFromQueueExchange2, Math.floor(Math.random() * 2000));
+          setTimeout(playFromQueueExchange2, Math.floor(Math.random() * 2000));
       }
   }
 
@@ -142,15 +130,15 @@ $(function(){
           fn = 'c00' + i;
       }
       celesta.push(new Howl({
-          src : ['https://d1fz9d31zqor6x.cloudfront.net/sounds/celesta/' + fn + '.ogg',
-                  'https://d1fz9d31zqor6x.cloudfront.net/sounds/celesta/' + fn + '.mp3'],
+          src : ['/static/sounds/celesta/' + fn + '.ogg',
+                 '/static/sounds/celesta/' + fn + '.mp3', ],
           volume : 0.7,
           onload : sound_load(),
           buffer: true,
       }))
       clav.push(new Howl({
-          src : ['https://d1fz9d31zqor6x.cloudfront.net/sounds/clav/' + fn + '.ogg',
-                  'https://d1fz9d31zqor6x.cloudfront.net/sounds/clav/' + fn + '.mp3'],
+          src : ['/static/sounds/clav/' + fn + '.ogg',
+                 '/static/sounds/clav/' + fn + '.mp3', ],
           volume : 0.4,
           onload : sound_load(),
           buffer: true,
@@ -159,8 +147,8 @@ $(function(){
 
   for (var i = 1; i <= 3; i++) {
       swells.push(new Howl({
-          src : ['https://d1fz9d31zqor6x.cloudfront.net/sounds/swells/swell' + i + '.ogg',
-                  'https://d1fz9d31zqor6x.cloudfront.net/sounds/swells/swell' + i + '.mp3'],
+          src : ['/static/sounds/swells/swell' + i + '.ogg',
+                 '/static/sounds/swells/swell' + i + '.mp3', ],
           volume : 1,
           onload : sound_load(),
           buffer: true,
@@ -180,6 +168,7 @@ function playRandomSwell() {
 }
 
 function playSound(size, type) {
+  console.log('inside play sound')
     var max_pitch = 100.0;
     var log_used = 1.0715307808111486871978099;
     var pitch = 100 - Math.min(max_pitch, Math.log(size + log_used) / Math.log(log_used));
@@ -190,9 +179,9 @@ function playSound(size, type) {
     index = Math.max(1, index);
     if (current_notes < note_overlap) {
         current_notes++;
-        if (type == 'IssuesEvent' || type == 'IssueCommentEvent') {
+        if (type == 'JOIN') {
             clav[index].play();
-        } else if(type == 'PushEvent') {
+        } else if(type == 'QUIT') {
             celesta[index].play();
         }else{
           playRandomSwell();
@@ -204,9 +193,11 @@ function playSound(size, type) {
 }
 
 function playFromQueueExchange1(){
-  var event = eventQueue.shift();
-  if(event != null && event.message != null && !shouldEventBeIgnored(event) && svg != null){
-    playSound(event.message.length*1.1, event.type);
+  console.log('inside playFromQueueExchange1')
+  var event = eventQueue.shift()
+  console.log(event, eventQueue)
+  if(event != null && svg != null) {
+    playSound(1.1, event.type);
     if(!document.hidden)
       drawEvent(event, svg);
   }
@@ -216,8 +207,8 @@ function playFromQueueExchange1(){
 
 function playFromQueueExchange2(){
   var event = eventQueue.shift();
-  if(event != null && event.message != null && !shouldEventBeIgnored(event) && svg != null){
-    playSound(event.message.length, event.type);
+  if(event != null && svg != null){
+    playSound(1, event.type);
     if(!document.hidden)
       drawEvent(event, svg);
   }
@@ -238,17 +229,19 @@ String.prototype.capitalize=function(all){
 
 
 function drawEvent(data, svg_area) {
+  const MESSAGE_LENGTH = 10
     var starting_opacity = 1;
-    var opacity = 1 / (100 / data.message.length);
+    var opacity = 1 / (100 / MESSAGE_LENGTH);
     if (opacity > 0.5) {
         opacity = 0.5;
     }
-    var size = data.message.length;
+    var size = MESSAGE_LENGTH;
     var label_text;
     var ring_radius = 80;
     var ring_anim_duration = 3000;
     svg_text_color = '#FFFFFF';
-    switch(data.type){
+    console.log('data', data)
+    switch(data.type) {
       case "JOIN":
         label_text = data.user.capitalize() + " connected to the Hub "
         edit_color = '#B2DFDB';
@@ -261,13 +254,13 @@ function drawEvent(data, svg_area) {
         ring_radius = 600;
       break;
       case "QUIT":
-        label_text = data.user.capitalize() + " disconnected !" +
+        label_text = data.user.capitalize() + " disconnected !"
         edit_color = '#FFEB3B';
       break;
       case "SHARE":
         label_text = data.user.capitalize() + " shared some of their files <3 ";
         edit_color = '#FF5722';
-      break;
+        break;
     }
     var csize = size;
     var no_label = false;
