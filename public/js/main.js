@@ -243,19 +243,21 @@ function drawEvent(data, svg_area) {
     console.log('data', data)
     switch(data.type) {
       case "JOIN":
-        label_text = data.user.capitalize() + " connected to the Hub "
-        edit_color = '#B2DFDB';
+        label_text = data.user + " connected to the Hub "
+        edit_color = '#fff200';
       break;
       case "SEARCH":
         label_text = 'Someone searched for ' + data.query
         data.action + " " + " a PR for " + data.repo_name;
-        edit_color = '#C6FF00';
+        // edit_color = '#C6FF00';
+        edit_color = "#0bef16"
         ring_anim_duration = 10000;
         ring_radius = 600;
       break;
       case "QUIT":
-        label_text = data.user.capitalize() + " disconnected !"
-        edit_color = '#FFEB3B';
+        label_text = data.user + " disconnected !"
+        // edit_color = '#FFEB3B';  // Yellow
+        edit_color = '#db7272'
       break;
       case "SHARE":
         label_text = data.user.capitalize() + " shared some of their files <3 ";

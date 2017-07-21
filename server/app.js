@@ -24,10 +24,8 @@ io.on('connection', function(socket) {
   socket.on('i am client', console.log);
 });
 
-
 tail.on('line', function(log) {
   let parsed = _parseData(log);
-  console.log(parsed)
   if (parsed.success)
     io.emit('log', { log: parsed.data });
 })
@@ -101,4 +99,17 @@ app.use(function(req, res, next) {
 
 app.get('/', function(req, res) {
   res.sendFile(path.resolve('public/index.html'))
+})
+
+app.post('/data', function(req, res) {
+  console.log(req)
+  console.log(req.query)
+  console.log(req.params)
+  console.log(req.body)
+  console.log(req.data)
+  // let parsed = _parseData(log);
+  // console.log(parsed)
+  // if (parsed.success)
+  //   io.emit('log', { log: parsed.data });
+  res.send('hello')
 })
