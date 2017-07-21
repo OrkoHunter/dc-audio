@@ -1,34 +1,34 @@
-var eventQueue = []
-var svg
-var element
-var drawingArea
-var width
-var height
-var volume = 0.6
+let eventQueue = []
+let svg
+let element
+let drawingArea
+let width
+let height
+let volume = 0.6
 
 
-var scale_factor = 6,
-    note_overlap = 2,
-    note_timeout = 300,
-    current_notes = 0,
-    max_life = 20000
+let scale_factor = 6
+let note_overlap = 2
+let note_timeout = 300
+let current_notes = 0
+let max_life = 20000
 
-var svg_background_color_online = '#0288D1',
-    svg_background_color_offline = '#E91E63',
-    svg_text_color = '#FFFFFF',
-    newuser_box_color = 'rgb(41, 128, 185)',
-    push_color = 'rgb(155, 89, 182)',
-    issue_color = 'rgb(46, 204, 113)',
-    pull_request_color = 'rgb(46, 204, 113)',
-    total_sounds = 51
+let svg_background_color_online = '#0288D1'
+let svg_background_color_offline = '#E91E63'
+let svg_text_color = '#FFFFFF'
+let newuser_box_color = 'rgb(41, 128, 185)'
+let push_color = 'rgb(155, 89, 182)'
+let issue_color = 'rgb(46, 204, 113)'
+let pull_request_color = 'rgb(46, 204, 113)'
+let total_sounds = 51
 
-var celesta = [],
-    clav = [],
-    swells = [],
-    all_loaded = false;
+let celesta = []
+let clav = []
+let swells = []
+let all_loaded = false
 
 
-var socket = io();
+const socket = io()
 
 socket.on('log', function(data) {
   eventQueue.push(data.log)
