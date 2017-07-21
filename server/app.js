@@ -4,7 +4,7 @@ const bodyParser = require('body-parser')
 const fs = require('fs')
 const path = require('path')
 const index = fs.readFileSync(path.resolve('public/index.html'));
-const Tail = require('tail').Tail;
+// const Tail = require('tail').Tail;
 const HOMEDIR = require('os').homedir()
 const helmet = require('helmet')
 
@@ -16,7 +16,7 @@ const argv = require('minimist')(process.argv.slice(2));
 const port = process.env.PORT || 8000;
 server.listen(port)
 
-tail = new Tail("/home/hunter/.ncdc/stderr.log")
+// tail = new Tail("/home/hunter/.ncdc/stderr.log")
 
 io.on('connection', function(socket) {
   console.log('Connected with client id : ', socket.id)
@@ -25,15 +25,15 @@ io.on('connection', function(socket) {
   socket.on('i am client', console.log);
 });
 
-tail.on('line', function(log) {
-  let parsed = _parseData(log);
-  if (parsed.success)
-    io.emit('log', { log: parsed.data });
-})
+// tail.on('line', function(log) {
+//   let parsed = _parseData(log);
+//   if (parsed.success)
+//     io.emit('log', { log: parsed.data });
+// })
 
-tail.on("error", function(error) {
-  console.log('ERROR: ', error);
-});
+// tail.on("error", function(error) {
+//   console.log('ERROR: ', error);
+// });
 
 
 function _parseData(log) {
