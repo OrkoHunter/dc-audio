@@ -168,7 +168,6 @@ function playRandomSwell() {
 }
 
 function playSound(size, type) {
-  console.log('inside play sound')
     var max_pitch = 100.0;
     var log_used = 1.0715307808111486871978099;
     var pitch = 100 - Math.min(max_pitch, Math.log(size + log_used) / Math.log(log_used));
@@ -193,9 +192,7 @@ function playSound(size, type) {
 }
 
 function playFromQueueExchange1(){
-  console.log('inside playFromQueueExchange1')
   var event = eventQueue.shift()
-  console.log(event, eventQueue)
   if(event != null && svg != null) {
     playSound(1.1, event.type);
     if(!document.hidden)
@@ -240,15 +237,16 @@ function drawEvent(data, svg_area) {
     var ring_radius = 80;
     var ring_anim_duration = 3000;
     svg_text_color = '#FFFFFF';
-    console.log('data', data)
     switch(data.type) {
       case "JOIN":
         label_text = data.user + " connected to the Hub "
         edit_color = '#fff200';
       break;
       case "SEARCH":
-        label_text = 'Someone searched for ' + data.query
-        data.action + " " + " a PR for " + data.repo_name;
+        if (data.query.length > 0)
+          label_text = 'Someone searched for ' + data.query
+        else
+          label_text = 'Someone searched'
         // edit_color = '#C6FF00';
         edit_color = "#0bef16"
         ring_anim_duration = 10000;

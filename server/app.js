@@ -46,12 +46,12 @@ function _parseData(log) {
 
   // We don't need to process logs with these keywords
   let noisy = false
-  let noise = ['#[VIPChat]', '#[ModzChat]', 'TTH:', '*message*']
+  let noise = ['#[VIPChat]', '#[ModzChat]', '*message*']
   noise.forEach((item) => {
-    if (log.indexOf(item) > -1)
+    if (log.indexOf(item) > -1) {
       noisy = true
+    }
   })
-
   // Only *debug* messages are for activities
   if (log.indexOf('*debug*') < 0)
     noisy = true
@@ -62,6 +62,7 @@ function _parseData(log) {
   let logArray = log.split(' ')
   let lenLog = logArray.length
   let time = logArray && logArray[1]
+
   if (log.indexOf('$MyINFO') > -1) {
     let user = logArray[lenLog - 2]
     let returnData = {success: true, data: {type: 'JOIN', user, time}}
@@ -71,12 +72,18 @@ function _parseData(log) {
     let returnData = {success: true, data: {type: 'QUIT', user, time}}
     return returnData
   } else if (log.indexOf('$Search') > -1) {
-    let queryArray = logArray[lenLog - 1].split('?')
-    let query = queryArray[queryArray.length - 1]
-    query = query.split('$').join(' ')
-    query = query.slice(0, -1)
-    let returnData = {success: true, data: {type: 'SEARCH', query, time}}
-    return returnData
+    if (log.indexOf('TTH:') > -1) {
+      let query = ''
+      let returnData = {success: true, data: {type: 'SEARCH', query, time}}
+      return returnData
+    } else {
+      let queryArray = logArray[lenLog - 1].split('?')
+      let query = queryArray[queryArray.length - 1]
+      query = query.split('$').join(' ')
+      query = query.slice(0, -1)
+      let returnData = {success: true, data: {type: 'SEARCH', query, time}}
+      return returnData
+    }
   } else if (log.indexOf('$SR') > -1) {
     let user = logArray[6]
     let returnData = {success: true, data: {type: 'SHARE', user, time}}
@@ -98,7 +105,7 @@ app.use(function(req, res, next) {
     next();
 });
 
-// Must send "Content-Type": "application/json" in headers
+// Must send "content-type": "application/json" in headers
 app.use(bodyParser.json())
 
 app.get('/', function(req, res) {
@@ -106,9 +113,11 @@ app.get('/', function(req, res) {
 })
 
 app.post('/data', function(req, res) {
-  console.log(res.headers)
-  let parsed = _parseData(req.body.log);
-  if (parsed.success)
-    io.emit('log', { log: parsed.data });
-  res.send(200).send()
+  if (req.headers.authorization === 'MY-SECRET-KEY') {
+    let parsed = _parseData(req.body.log);
+    if (parsed.success)
+      io.emit('log', { log: parsed.data });
+    res.sendStatus(200)
+  } else
+    res.sendStatus(401)
 })
