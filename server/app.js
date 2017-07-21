@@ -1,5 +1,6 @@
 const express = require('express')
 const app = express()
+const bodyParser = require('body-parser')
 const fs = require('fs')
 const path = require('path')
 const index = fs.readFileSync(path.resolve('public/index.html'));
@@ -12,7 +13,7 @@ const io = require('socket.io')(server);
 
 const argv = require('minimist')(process.argv.slice(2));
 
-const port = 8000;
+const port = process.env.PORT || 8000;
 server.listen(port)
 
 tail = new Tail("/home/hunter/.ncdc/stderr.log")
@@ -86,8 +87,8 @@ function _parseData(log) {
 
 }
 
-app.use(helmet())
-app.disable('x-powered-by');
+// app.use(helmet())
+// app.disable('x-powered-by');
 
 app.use('/static', express.static('public'))
 
@@ -97,19 +98,17 @@ app.use(function(req, res, next) {
     next();
 });
 
+// Must send "Content-Type": "application/json" in headers
+app.use(bodyParser.json())
+
 app.get('/', function(req, res) {
   res.sendFile(path.resolve('public/index.html'))
 })
 
 app.post('/data', function(req, res) {
-  console.log(req)
-  console.log(req.query)
-  console.log(req.params)
-  console.log(req.body)
-  console.log(req.data)
-  // let parsed = _parseData(log);
-  // console.log(parsed)
-  // if (parsed.success)
-  //   io.emit('log', { log: parsed.data });
-  res.send('hello')
+  console.log(res.headers)
+  let parsed = _parseData(req.body.log);
+  if (parsed.success)
+    io.emit('log', { log: parsed.data });
+  res.send(200).send()
 })
