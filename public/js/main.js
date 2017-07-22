@@ -259,7 +259,7 @@ function drawEvent(data, svg_area) {
       break;
       case "SHARE":
         label_text = data.user.capitalize() + " shared some of their files <3 ";
-        edit_color = '#FF5722';
+        edit_color = "#0bef16";
         break;
     }
     var csize = size;
