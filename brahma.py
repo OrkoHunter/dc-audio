@@ -95,11 +95,9 @@ loglines = follow(logfile)
 
 for line in loglines:
     success, data = parse_data(line)
-    print(parse_data(line))
     if success:
         log = json.dumps({"data": data})
-        print(log)
-        # r = requests.post('https://kgpdcaudio.herokuapp.com/data', data=log, headers=headers)
-        r = requests.post('http://localhost:5000/data', data=log, headers=headers)
+        r = requests.post('https://kgpdcaudio.herokuapp.com/data', data=log, headers=headers)
+        # r = requests.post('http://localhost:5000/data', data=log, headers=headers)
         print(r.ok)
         print(time.strftime("--> %H:%M:%S"))
